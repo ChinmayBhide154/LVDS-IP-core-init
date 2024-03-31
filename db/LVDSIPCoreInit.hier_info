@@ -1,0 +1,19 @@
+|LVDSIPCoreInit
+clk => rx_cda_reset~reg0.CLK
+clk => rx_fifo_reset~reg0.CLK
+clk => rx_reset~reg0.CLK
+clk => pll_areset~reg0.CLK
+clk => state~1.DATAIN
+rst => state~3.DATAIN
+user_mode => next.USERMODE.DATAB
+user_mode => Selector0.IN2
+rx_locked => Selector2.IN3
+rx_locked => Selector1.IN2
+rx_dpa_locked => next.ASSERT_RX_FIFO_RESET.DATAB
+rx_dpa_locked => Selector2.IN1
+pll_areset <= pll_areset~reg0.DB_MAX_OUTPUT_PORT_TYPE
+rx_reset <= rx_reset~reg0.DB_MAX_OUTPUT_PORT_TYPE
+rx_fifo_reset <= rx_fifo_reset~reg0.DB_MAX_OUTPUT_PORT_TYPE
+rx_cda_reset <= rx_cda_reset~reg0.DB_MAX_OUTPUT_PORT_TYPE
+
+

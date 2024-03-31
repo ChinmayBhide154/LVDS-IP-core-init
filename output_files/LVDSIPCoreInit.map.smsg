@@ -1,0 +1,1 @@
+Info (10281): Verilog HDL Declaration information at LVDSIPCoreInit.sv(3): object "STABLE_COUNT" differs only in case from object "stable_count" in the same scope File: C:/Git Repositories/LVDS-IP-core-init/LVDSIPCoreInit.sv Line: 3

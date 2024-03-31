@@ -1,0 +1,45 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "pll_areset",
+					"strict" : false
+				},
+				{
+					"name" : "rx_reset",
+					"strict" : false
+				},
+				{
+					"name" : "rx_fifo_reset",
+					"strict" : false
+				},
+				{
+					"name" : "rx_cda_reset",
+					"strict" : false
+				},
+				{
+					"name" : "rx_locked",
+					"strict" : false
+				},
+				{
+					"name" : "rx_dpa_locked",
+					"strict" : false
+				},
+				{
+					"name" : "user_mode",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "rst",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
