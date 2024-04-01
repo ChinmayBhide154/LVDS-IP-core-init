@@ -1,15 +1,14 @@
-module LVDSIPCoreInit #(
-    parameter integer STABLE_COUNT = 10  // Number of clock cycles for stability
-) (
+module LVDSIPCoreInit (
     input logic clk,
     input logic rst,
-    input logic user_mode,          // Input signal indicating user mode
-    input logic rx_locked,          // PLL lock indicator
-    input logic rx_dpa_locked,      // Additional lock indicator
-    output logic pll_areset,        // PLL asynchronous reset
-    output logic rx_reset,          // RX reset
-    output logic rx_fifo_reset,     // RX FIFO reset
-    output logic rx_cda_reset       // RX CDA reset
+    input logic user_mode,         
+    input logic rx_locked,          
+    input logic rx_dpa_locked,      
+    output logic pll_areset,        
+    output logic rx_reset,         
+    output logic rx_fifo_reset,     
+    output logic rx_cda_reset,    
+	output logic monitor   
 );
 	// States
 	parameter IDLE = 4'b0000;
@@ -21,6 +20,7 @@ module LVDSIPCoreInit #(
 	parameter DEASSERT_RX_FIFO_RESET = 4'b0110;
 	parameter ASSERT_RX_CDA_RESET = 4'b0111;
 	parameter DEASSERT_RX_CDA_RESET = 4'b1000;
+	parameter DONE = 4'b1001;
 	
 	logic [3:0] state, next;
 	
@@ -42,13 +42,9 @@ module LVDSIPCoreInit #(
             USERMODE: next = MONITOR;
             
             MONITOR: begin
-                //if (rx_locked) next = D_RX_RST;
-				//else next = MONITOR;
 				next = D_RX_RST;
             end
             D_RX_RST: begin
-                //if (stable_count == STABLE_COUNT) next = WAIT_RX_DPA_LOCK;
-				//else next = D_RX_RST;
 				if (rx_locked) next = WAIT_RX_DPA_LOCK;
 				else next = D_RX_RST;
             end
@@ -63,11 +59,15 @@ module LVDSIPCoreInit #(
 				next = ASSERT_RX_CDA_RESET;
 			end
             ASSERT_RX_CDA_RESET: begin
-                next = IDLE; 
+                next = DEASSERT_RX_CDA_RESET; 
             end
 
 			DEASSERT_RX_CDA_RESET: begin
-				next = IDLE;
+				next = DONE;
+			end
+
+			DONE: begin
+				next = DONE;
 			end
 			default: next = IDLE;
         endcase
@@ -76,28 +76,27 @@ module LVDSIPCoreInit #(
 	 always_ff @(posedge clk) begin
 		case (next)
 			IDLE: begin
-				// Reset all outputs
-				pll_areset <= 0;
-				rx_reset <= 0;
-				rx_fifo_reset <= 0;
-				rx_cda_reset <= 0;
-				//stable_count <= 0;
+				pll_areset <= 1'b0;
+				rx_reset <= 1'b0;
+				rx_fifo_reset <= 1'b0;
+				rx_cda_reset <= 1'b0;
+				monitor <= 1'b0;
 			end
 			USERMODE: begin
-				pll_areset <= 1;
-				rx_reset <= 1;
+				pll_areset <= 1'b1;
+				rx_reset <= 1'b1;
 			end
 			MONITOR: begin
-				//pll_areset <= 0;
+				pll_areset <= 1'b0;
+				monitor <= 1'b1;
+				
 			end
 			D_RX_RST: begin
-				pll_areset <= 0;
-				//if (rx_locked)
-					//stable_count <= stable_count + 1;
-				//else
-				//	stable_count <= 0;
-				//if (stable_count < STABLE_COUNT)
-				//	rx_reset <= 1;
+				if (rx_locked)
+					rx_reset <= 1'b0;
+
+				monitor <= 1'b0;
+
 			end
 			ASSERT_RX_FIFO_RESET: begin
 				rx_fifo_reset <= 1'b1;
@@ -110,6 +109,19 @@ module LVDSIPCoreInit #(
 			end
 
 			DEASSERT_RX_CDA_RESET: begin
+				rx_cda_reset <= 1'b0;
+			end
+
+			DONE: begin
+				pll_areset <= 1'b0;
+				rx_reset <= 1'b0;
+				rx_fifo_reset <= 1'b0;
+				rx_cda_reset <= 1'b0;
+			end
+			default: begin
+				pll_areset <= 1'b0;
+				rx_reset <= 1'b0;
+				rx_fifo_reset <= 1'b0;
 				rx_cda_reset <= 1'b0;
 			end
 		endcase
